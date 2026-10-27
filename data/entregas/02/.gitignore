@@ -1,0 +1,6 @@
+local_output/
+bronze/
+silver/
+*.csv
+*.parquet
+!.gitignore

@@ -1,1 +1,8 @@
 .DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.codex_tmp/
+~$*.docx
+docs/entregas/02_defensa_datos_y_preparacion.docx
