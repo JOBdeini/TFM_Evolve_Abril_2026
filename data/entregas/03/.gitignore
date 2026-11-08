@@ -1,0 +1,6 @@
+local_output/
+*.csv
+*.json
+*.joblib
+*.png
+!.gitignore

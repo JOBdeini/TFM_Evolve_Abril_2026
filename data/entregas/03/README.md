@@ -1,0 +1,37 @@
+# Resultados locales de la Entrega 03
+
+Esta carpeta contiene las instrucciones de reproducción del experimento de
+Machine Learning. Los resultados generados y el artefacto del modelo se guardan
+en `local_output/`, que está excluido de Git para evitar publicar datos
+derivados de una fuente cuya redistribución debe validarse.
+
+El experimento utiliza el Gold creado en la Entrega 02 sin modificarlo:
+
+```bash
+python scripts/train_vissotia_valuation.py \
+  --input data/entregas/02/local_output/vissotia_valoracion_gold.csv \
+  --output-dir data/entregas/03/local_output
+```
+
+El script requiere el contrato actualizado de 29 columnas, con
+`fecha_publicacion` y `fecha_extraccion` separadas. La primera ordena la
+validación temporal; la segunda se conserva como trazabilidad y no se utiliza
+como predictor.
+
+Los principales resultados son:
+
+- comparación del baseline, Ridge y XGBoost en un test temporal;
+- validación temporal expansiva dentro del conjunto de entrenamiento;
+- errores de XGBoost por ciudad y tramo de precio;
+- prueba exploratoria dejando cada ciudad completamente fuera del entrenamiento;
+- importancia de variables, predicciones del test y gráficos;
+- artefacto `modelo_valoracion_inicial_xgboost.joblib`.
+
+`dias_publicado` se excluye porque solo existe después de publicar. `demanda`
+también queda fuera de esta versión, pero por una razón diferente: antes de
+probarla como contexto de mercado debe documentarse su fórmula y disponibilidad
+temporal para descartar fuga de información.
+
+El modelo es académico y estima precio anunciado, no precio de cierre ni una
+tasación oficial. No debe integrarse en producción hasta completar la
+validación, la calibración de intervalos y las pruebas con datos autorizados.
