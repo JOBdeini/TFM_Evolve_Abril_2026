@@ -1,0 +1,24 @@
+# Datos fuente restringidos y derivados reproducibles
+bronze/
+silver/
+gold/
+external_test/
+candidate_training/
+repeated_properties/
+local_output/
+
+# Formatos de datos y artefactos que no deben versionarse en esta captura
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.json
+*.joblib
+*.pkl
+*.pickle
+
+# Metadatos locales
+.DS_Store
+__pycache__/
+.ipynb_checkpoints/
+

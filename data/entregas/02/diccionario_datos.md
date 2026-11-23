@@ -16,15 +16,16 @@ Este documento define el contrato actual de `vissotia_valoracion_gold.csv`. Se d
 | `barrio` | categoría | Barrio del inmueble cuando está disponible. | Sí | Antes de publicar | Predictor inicial |
 | `latitud_aprox` | decimal | Latitud redondeada a tres decimales. | No | Antes de publicar | Predictor inicial restringido |
 | `longitud_aprox` | decimal | Longitud redondeada a tres decimales. | No | Antes de publicar | Predictor inicial restringido |
-| `planta_num` | decimal | Planta normalizada; bajo 0, entreplanta 0,5 y ático 99. | Sí | Antes de publicar | Predictor inicial |
-| `aire_acondicionado` | binario | 1 si se declara; 0 si no. | No | Antes de publicar | Predictor inicial |
-| `ascensor` | binario | 1 si se declara; 0 si no. | No | Antes de publicar | Predictor inicial |
-| `garaje` | binario | 1 si se declara; 0 si no. | No | Antes de publicar | Predictor inicial |
-| `trastero` | binario | 1 si se declara; 0 si no. | No | Antes de publicar | Predictor inicial |
-| `terraza` | binario | 1 si se declara; 0 si no. | No | Antes de publicar | Predictor inicial |
-| `piscina` | binario | 1 si se declara; 0 si no. | No | Antes de publicar | Predictor inicial |
-| `zonas_verdes` | binario | 1 si se declara; 0 si no. | No | Antes de publicar | Predictor inicial |
-| `zona_deportiva` | binario | 1 si se declara; 0 si no. | No | Antes de publicar | Predictor inicial |
+| `planta_num` | decimal | Altura numérica declarada; bajo 0 y entreplanta 0,5. Un ático sin altura explícita no se convierte en una planta ficticia. | Sí | Antes de publicar | Predictor inicial |
+| `es_atico` | binario | 1 si la fuente declara ático; 0 si declara otra planta; nulo si no existe información de planta. | Sí | Antes de publicar | Predictor inicial |
+| `aire_acondicionado` | binario | 1 si se declara; 0 si se niega; nulo si falta o el valor no se reconoce. | Sí | Antes de publicar | Predictor inicial |
+| `ascensor` | binario | 1 si se declara; 0 si se niega; nulo si falta o el valor no se reconoce. | Sí | Antes de publicar | Predictor inicial |
+| `garaje` | binario | 1 si se declara; 0 si se niega; nulo si falta o el valor no se reconoce. | Sí | Antes de publicar | Predictor inicial |
+| `trastero` | binario | 1 si se declara; 0 si se niega; nulo si falta o el valor no se reconoce. | Sí | Antes de publicar | Predictor inicial |
+| `terraza` | binario | 1 si se declara; 0 si se niega; nulo si falta o el valor no se reconoce. | Sí | Antes de publicar | Predictor inicial |
+| `piscina` | binario | 1 si se declara; 0 si se niega; nulo si falta o el valor no se reconoce. | Sí | Antes de publicar | Predictor inicial |
+| `zonas_verdes` | binario | 1 si se declara; 0 si se niega; nulo si falta o el valor no se reconoce. | Sí | Antes de publicar | Predictor inicial |
+| `zona_deportiva` | binario | 1 si se declara; 0 si se niega; nulo si falta o el valor no se reconoce. | Sí | Antes de publicar | Predictor inicial |
 | `conservacion` | categoría | Estado de conservación declarado en el anuncio. | Sí | Antes de publicar | Predictor inicial |
 | `dormitorios` | decimal/entero | Número de dormitorios; rango admitido de 0 a 15. | Sí | Antes de publicar | Predictor inicial |
 | `banos` | decimal/entero | Número de baños; rango admitido de 0 a 10. | Sí | Antes de publicar | Predictor inicial |
@@ -45,3 +46,17 @@ Este documento define el contrato actual de `vissotia_valoracion_gold.csv`. Se d
 - **Valoración inicial:** solo utiliza variables disponibles antes de publicar el inmueble.
 - **Seguimiento o reestimación:** puede evaluar `dias_publicado`, ya que solo existe después de publicar y puede reflejar demanda, desajuste de precio o calidad del anuncio.
 - **Demanda:** puede evaluarse en el valorador inicial únicamente si el valor estaba disponible en la fecha de extracción y se demuestra que no incorpora información futura. Si no se puede acreditar, se reserva para seguimiento.
+
+## Controles efectivos antes de exportar
+
+El pipeline detiene la ejecución si falta una columna obligatoria de la fuente. Antes de Gold descarta y contabiliza las filas que incumplen alguno de estos controles:
+
+- fecha de publicación válida y no posterior a la extracción;
+- tipología, municipio, provincia y origen informados;
+- latitud entre -90 y 90 y longitud entre -180 y 180;
+- operación de venta;
+- precio superior a 10.000 euros;
+- superficie entre 15 y 1.000 metros cuadrados;
+- dormitorios y baños dentro de los rangos declarados cuando existen.
+
+Después de construir Gold se ejecuta una segunda validación que comprueba columnas, nulos obligatorios, fechas, coordenadas, rangos, operación, codificación binaria y ausencia del valor ficticio 99 en `planta_num`. Un incumplimiento impide exportar el dataset.

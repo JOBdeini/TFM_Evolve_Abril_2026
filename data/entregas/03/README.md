@@ -13,10 +13,10 @@ python scripts/train_vissotia_valuation.py \
   --output-dir data/entregas/03/local_output
 ```
 
-El script requiere el contrato actualizado de 29 columnas, con
-`fecha_publicacion` y `fecha_extraccion` separadas. La primera ordena la
-validación temporal; la segunda se conserva como trazabilidad y no se utiliza
-como predictor.
+El script requiere el contrato actualizado de 30 columnas, con
+`fecha_publicacion` y `fecha_extraccion` separadas y la condición `es_atico`
+independiente de `planta_num`. La primera fecha ordena la validación temporal;
+la segunda se conserva como trazabilidad y no se utiliza como predictor.
 
 Los principales resultados son:
 
@@ -26,6 +26,13 @@ Los principales resultados son:
 - prueba exploratoria dejando cada ciudad completamente fuera del entrenamiento;
 - importancia de variables, predicciones del test y gráficos;
 - artefacto `modelo_valoracion_inicial_xgboost.joblib`.
+
+La validación externa se ejecuta con
+`notebooks/03b_validacion_externa_y_challenger.ipynb`. Utiliza la captura del
+16 de noviembre de 2026, excluye coincidencias exactas entre capturas, compara
+el champion con un baseline de zona y superficie y presenta resultados por
+ciudad y tramo de precio. El modelo combinado se guarda como challenger y no
+se promociona hasta disponer de otra captura futura.
 
 `dias_publicado` se excluye porque solo existe después de publicar. `demanda`
 también queda fuera de esta versión, pero por una razón diferente: antes de

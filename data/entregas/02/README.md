@@ -21,7 +21,9 @@ El resultado incluye `vissotia_valoracion_gold.csv` y `quality_report.json`. El 
 
 El proceso también genera `source_manifest.json`, con nombre, tamaño, fecha de modificación, columnas, checksum SHA-256, procedencia operativa, límite de descarga y alcance de uso declarado. El manifiesto no constituye una licencia ni amplía los derechos de reutilización.
 
-El contrato de las 29 columnas se encuentra en `data/entregas/02/diccionario_datos.md`. Distingue `fecha_publicacion` de `fecha_extraccion`, los predictores disponibles al estimar y las señales posteriores. `dias_publicado` se reserva para seguimiento; `demanda` solo podrá entrar en el valorador inicial si estaba disponible y fechada en ese momento.
+El contrato de las 30 columnas se encuentra en `data/entregas/02/diccionario_datos.md`. Distingue `fecha_publicacion` de `fecha_extraccion`, separa la altura numérica de la condición de ático, define la política para binarios desconocidos y diferencia los predictores disponibles al estimar de las señales posteriores. `dias_publicado` se reserva para seguimiento; `demanda` solo podrá entrar en el valorador inicial si estaba disponible y fechada en ese momento.
+
+El directorio `examples/entrega02` contiene una entrada ficticia, su Gold esperado y un informe de calidad sin datos sensibles. Los tests comprueban que el ejemplo se reproduce con el código actual.
 
 Para instalar el entorno mínimo de esta entrega:
 

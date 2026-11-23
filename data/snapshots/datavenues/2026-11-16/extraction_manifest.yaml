@@ -1,0 +1,126 @@
+manifest_version: 1
+snapshot_id: datavenues_2026-11-16
+extraction_date: "2026-11-16"
+integrity_review_date: "2026-11-18"
+provider: DataVenues
+default_portal: Fotocasa
+portal_exceptions:
+  Bilbao:
+    portal: idealista
+    status: approved
+    rationale: "Mayor disponibilidad de inmuebles publicados en Idealista para este municipio."
+operation_observed: Venta
+purpose:
+  - external_temporal_validation
+  - republication_control
+  - future_candidate_retraining
+data_classification: restricted_source_data
+redistribution: prohibited_pending_explicit_authorization
+git_tracking: prohibited
+bronze_immutable: true
+common_schema:
+  encoding: utf-8-sig
+  delimiter: comma
+  columns: 41
+  consistent_across_files: true
+  exact_names_and_order_match: true
+  schema_sha256: ac9b1a7f53bac9d4168040d3999f1273b236e2009415fc51afb971f9245e2805
+summary:
+  file_count: 8
+  row_count: 11507
+  validation_status: accepted_with_documented_source_exception
+  findings:
+    - "El CSV de Bilbao contiene 1.271 filas con Fuente=Idealista y se mantiene por decisión del jefe de proyecto."
+    - "Bilbao comparte exactamente las mismas 41 columnas, nombres, orden, codificación y separador que los otros CSV."
+    - "El CSV de Bilbao contiene 1 fila cuyo Municipio es Arrigorriaga; se excluye en la capa procesada y se conserva en Bronze."
+    - "Los otros siete CSV solo contienen Fotocasa, admitiendo repeticiones del portal dentro de Fuente."
+processing:
+  notebook: notebooks/03b_validacion_externa_y_challenger.ipynb
+  bronze_modified: false
+  republication_matching:
+    method: exact_id_observacion
+    approximate_feature_matching: false
+    rationale: "Dos viviendas del mismo edificio pueden compartir ubicación aproximada, superficie, dormitorios y baños sin ser el mismo inmueble."
+  baseline_zone_surface:
+    statistic: median_price_per_square_meter
+    minimum_witnesses: 10
+    fallback_hierarchy: [barrio, codigo_postal, distrito, municipio, global]
+  geographic_exclusion:
+    source_file: "bronze/bilbao/datavenues_bilbao_2026-11-16.csv"
+    field: Municipio
+    value: Arrigorriaga
+    rows: 1
+    layer: silver
+filters:
+  documentation: filters.md
+  exact_source_parameters: pending_project_manager_confirmation
+files:
+  - municipality_scope: "A Coruña"
+    path: "bronze/acoruña/datavenues_a_coruna_fotocasa_2026-11-16.csv"
+    rows: 507
+    columns: 41
+    size_bytes: 306472
+    sha256: 4d2c5e05cc8d84bc771f84515b4f9be4b096531d9bb188938d75dca2fc4400e7
+    source_tokens_observed: [Fotocasa]
+    scope_validation: passed
+  - municipality_scope: Bilbao
+    path: "bronze/bilbao/datavenues_bilbao_2026-11-16.csv"
+    rows: 1271
+    columns: 41
+    size_bytes: 644457
+    sha256: f17de69e2ab015c8b09a18d574d59b8aa9fd5196858278c70aaeea5e641b7b71
+    source_tokens_observed: [idealista]
+    municipality_values:
+      Bilbao: 1270
+      Arrigorriaga: 1
+    source_validation: accepted_exception
+    geographic_scope_validation: accepted_with_processing_exclusion
+  - municipality_scope: "Córdoba"
+    path: "bronze/cordoba/datavenues_cordoba_fotocasa_2026-11-16.csv"
+    rows: 2000
+    columns: 41
+    size_bytes: 1214082
+    sha256: dfca1617dff21bd1765303a85273687c96036bc282f0bf1aa80180d340e73c27
+    source_tokens_observed: [Fotocasa]
+    scope_validation: passed
+  - municipality_scope: Cuenca
+    path: "bronze/cuenca/dataVenues_cuenca_2026-11-16.csv"
+    rows: 189
+    columns: 41
+    size_bytes: 108382
+    sha256: 71c1cef8b28a3ce70e396a7b046177ed10dcde4a1a8a77ef4aae122dc13544f3
+    source_tokens_observed: [Fotocasa]
+    scope_validation: passed
+  - municipality_scope: Granada
+    path: "bronze/granada/dataVenues_granada_2026-11-16.csv"
+    rows: 1540
+    columns: 41
+    size_bytes: 959149
+    sha256: a4d5a871999cb9c348505d59543811e5a2de5e2c51b174e69104da3cafeb3318
+    source_tokens_observed: [Fotocasa]
+    scope_validation: passed
+  - municipality_scope: Madrid
+    path: "bronze/madrid/dataVenues_madrid_2026-11-16.csv"
+    rows: 2000
+    columns: 41
+    size_bytes: 1166316
+    sha256: cd06d2ba77023a7d032e827c5c072688b4f16e63dd6e7f5cf87ffa7da93f1ae0
+    source_tokens_observed: [Fotocasa]
+    scope_validation: passed
+  - municipality_scope: Sevilla
+    path: "bronze/sevilla/dataVenues_sevilla_2026-11-16.csv"
+    rows: 2000
+    columns: 41
+    size_bytes: 1192599
+    sha256: 48e442d138ef172d8e6170e958578c819609177ee7af14152df934c00bdfafa5
+    source_tokens_observed: [Fotocasa]
+    scope_validation: passed
+  - municipality_scope: Valencia
+    path: "bronze/valencia/dataVenues_valencia_2026-11-16.csv"
+    rows: 2000
+    columns: 41
+    size_bytes: 1189685
+    sha256: 92164bc3c0ad83b52972123bb65e71b155975eb53eb0d718387329030e037fe0
+    source_tokens_observed: [Fotocasa]
+    scope_validation: passed
+

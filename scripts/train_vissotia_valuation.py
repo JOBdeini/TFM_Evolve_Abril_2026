@@ -49,6 +49,7 @@ NUMERIC_FEATURES = [
     "latitud_aprox",
     "longitud_aprox",
     "planta_num",
+    "es_atico",
     "aire_acondicionado",
     "ascensor",
     "garaje",

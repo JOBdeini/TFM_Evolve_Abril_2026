@@ -17,7 +17,19 @@ Este directorio conserva cada ejercicio con numeración estable para que la evol
 - `../../requirements-entrega-02.txt`
 - `../../tests/test_prepare_vissotia_data.py`
 
-La Entrega 02 define las fuentes, la minimización de datos personales y el flujo Bronze, Silver y Gold para el caso de uso de valoración residencial. Incluye el contrato de las 29 columnas, controles de calidad desglosados y pruebas con datos sintéticos. Los datos brutos y la salida local permanecen fuera del control de versiones.
+La Entrega 02 define las fuentes, la minimización de datos personales y el flujo Bronze, Silver y Gold para el caso de uso de valoración residencial. Incluye el contrato de las 30 columnas, controles efectivos antes de exportar, controles de calidad desglosados y un ejemplo ficticio reproducible. Los datos brutos y la salida local permanecen fuera del control de versiones.
+
+## Entrega 03 Machine Learning
+
+- `03_machine_learning.md`
+- `03_machine_learning.docx`
+- `../../scripts/train_vissotia_valuation.py`
+- `../../notebooks/03b_validacion_externa_y_challenger.ipynb`
+- `../../data/entregas/03/README.md`
+- `../../requirements-entrega-03.txt`
+- `../../tests/test_train_vissotia_valuation.py`
+
+La Entrega 03 compara modelos sin fuga del objetivo, utiliza validación temporal y presenta errores por ciudad y tramo de precio. La validación externa incorpora una captura posterior, controla coincidencias exactas entre capturas, compara XGBoost con una referencia por zona y superficie y mantiene el nuevo modelo como challenger pendiente de otra prueba futura.
 
 ## Convención para próximas entregas
 

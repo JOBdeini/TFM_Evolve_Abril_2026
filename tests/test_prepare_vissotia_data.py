@@ -1,5 +1,6 @@
 import sys
 import unittest
+import json
 from pathlib import Path
 
 import numpy as np
@@ -43,6 +44,11 @@ def valid_row(**overrides):
 
 
 class PreparationTests(unittest.TestCase):
+    def test_missing_required_source_column_is_rejected(self):
+        frame = pd.DataFrame([valid_row()]).drop(columns=["municipio"])
+        with self.assertRaisesRegex(ValueError, "municipio"):
+            prep.build_silver(frame)
+
     def test_rows_without_reference_and_url_are_not_collapsed(self):
         rows = [
             valid_row(referencia=np.nan, url=np.nan, _source_row_number=0),
@@ -92,6 +98,73 @@ class PreparationTests(unittest.TestCase):
         )
         self.assertEqual(silver.loc[silver.index[0], "fecha_publicacion"], "2026-01-01")
         self.assertEqual(silver.loc[silver.index[0], "fecha_extraccion"], "2026-04-06")
+
+    def test_invalid_date_and_coordinates_are_rejected_before_gold(self):
+        rows = [
+            valid_row(referencia="A", fecha_de_creacion="fecha-invalida"),
+            valid_row(referencia="B", latitud=120.0),
+            valid_row(referencia="C", fecha_de_creacion="2026-04-07"),
+        ]
+        silver, quality = prep.build_silver(pd.DataFrame(rows))
+        self.assertTrue(silver.empty)
+        failures = quality["fallos_independientes_por_regla"]
+        self.assertEqual(failures["fecha_publicacion_valida"], 1)
+        self.assertEqual(failures["fecha_no_posterior_extraccion"], 2)
+        self.assertEqual(failures["coordenadas_validas"], 1)
+
+    def test_unknown_binary_is_preserved_as_null_and_reported(self):
+        silver, quality = prep.build_silver(
+            pd.DataFrame([valid_row(ascensor="Sin información")])
+        )
+        self.assertTrue(pd.isna(silver.loc[silver.index[0], "ascensor"]))
+        self.assertEqual(
+            quality["valores_binarios_desconocidos_por_columna"]["ascensor"], 1
+        )
+        gold = prep.build_gold(silver)
+        self.assertEqual(prep.validate_gold_contract(gold)["estado"], "correcto")
+
+    def test_attic_is_separate_from_numeric_floor(self):
+        rows = [
+            valid_row(referencia="A", planta="Ático"),
+            valid_row(referencia="B", planta="Ático 5"),
+        ]
+        silver, _ = prep.build_silver(pd.DataFrame(rows))
+        attic_only = silver.loc[silver["referencia"].eq("A")].iloc[0]
+        attic_with_height = silver.loc[silver["referencia"].eq("B")].iloc[0]
+        self.assertTrue(pd.isna(attic_only["planta_num"]))
+        self.assertEqual(attic_only["es_atico"], 1)
+        self.assertEqual(attic_with_height["planta_num"], 5.0)
+        self.assertEqual(attic_with_height["es_atico"], 1)
+
+    def test_gold_contract_rejects_required_null(self):
+        silver, _ = prep.build_silver(pd.DataFrame([valid_row()]))
+        gold = prep.build_gold(silver)
+        gold.loc[0, "municipio"] = pd.NA
+        with self.assertRaisesRegex(ValueError, "nulos_en_campos_obligatorios"):
+            prep.validate_gold_contract(gold)
+
+    def test_fictitious_example_reproduces_expected_gold_and_quality(self):
+        example_dir = ROOT / "examples" / "entrega02"
+        bronze = pd.read_csv(example_dir / "bronze_ficticio.csv")
+        bronze.columns = [prep.normalize_column(column) for column in bronze.columns]
+        bronze["origen_dataset"] = "Ejemplo ficticio"
+        bronze["_source_row_number"] = np.arange(len(bronze), dtype=int)
+        silver, quality = prep.build_silver(bronze, extraction_date="2026-04-06")
+        gold = prep.build_gold(silver)
+        expected_gold = pd.read_csv(example_dir / "gold_esperado.csv")
+        pd.testing.assert_frame_equal(gold, expected_gold, check_dtype=False)
+
+        expected_quality = json.loads(
+            (example_dir / "quality_report_ficticio.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            quality["fallos_independientes_por_regla"],
+            expected_quality["fallos_independientes_por_regla"],
+        )
+        self.assertEqual(
+            quality["valores_binarios_desconocidos_por_columna"],
+            expected_quality["valores_binarios_desconocidos_por_columna"],
+        )
 
 
 if __name__ == "__main__":

@@ -40,6 +40,37 @@ BOOLEAN_COLUMNS = [
     "zona_deportiva",
 ]
 
+BOOLEAN_TRUE_VALUES = {"1", "si", "sí", "true", "verdadero", "yes", "x"}
+BOOLEAN_FALSE_VALUES = {"0", "no", "false", "falso"}
+
+SOURCE_REQUIRED_COLUMNS = {
+    "operacion",
+    "tipologia",
+    "municipio",
+    "provincia",
+    "latitud",
+    "longitud",
+    "fecha_de_creacion",
+    "superficie",
+    "precio",
+    "origen_dataset",
+}
+
+GOLD_REQUIRED_NON_NULL = {
+    "id_observacion",
+    "fecha_publicacion",
+    "fecha_extraccion",
+    "operacion",
+    "tipologia",
+    "municipio",
+    "provincia",
+    "latitud_aprox",
+    "longitud_aprox",
+    "superficie_m2",
+    "origen_dataset",
+    "precio_objetivo_eur",
+}
+
 OUTPUT_COLUMNS = [
     "id_observacion",
     "fecha_publicacion",
@@ -54,6 +85,7 @@ OUTPUT_COLUMNS = [
     "latitud_aprox",
     "longitud_aprox",
     "planta_num",
+    "es_atico",
     *BOOLEAN_COLUMNS,
     "conservacion",
     "dormitorios",
@@ -88,25 +120,52 @@ def normalize_boolean(value: object) -> float:
     if pd.isna(value):
         return np.nan
     text = str(value).strip().lower()
-    if text in {"1", "si", "sí", "true", "verdadero", "yes", "x"}:
+    if text in BOOLEAN_TRUE_VALUES:
         return 1.0
-    if text in {"0", "no", "false", "falso"}:
+    if text in BOOLEAN_FALSE_VALUES:
         return 0.0
     return np.nan
+
+
+def is_unknown_boolean(value: object) -> bool:
+    """Distingue un valor desconocido de una ausencia declarada."""
+    if pd.isna(value) or not str(value).strip():
+        return False
+    text = str(value).strip().lower()
+    return text not in BOOLEAN_TRUE_VALUES | BOOLEAN_FALSE_VALUES
 
 
 def normalize_floor(value: object) -> float:
     if pd.isna(value):
         return np.nan
     text = str(value).strip().lower()
+    if not text:
+        return np.nan
     if "bajo" in text:
         return 0.0
     if "entreplanta" in text:
         return 0.5
     if "atico" in normalize_column(text):
-        return 99.0
+        match = re.search(r"-?\d+(?:[.,]\d+)?", text)
+        return float(match.group(0).replace(",", ".")) if match else np.nan
     match = re.search(r"-?\d+(?:[.,]\d+)?", text)
     return float(match.group(0).replace(",", ".")) if match else np.nan
+
+
+def normalize_attic(value: object) -> float:
+    """Separa la condición de ático de la altura numérica del inmueble."""
+    if pd.isna(value) or not str(value).strip():
+        return np.nan
+    return float("atico" in normalize_column(str(value)))
+
+
+def validate_source_columns(frame: pd.DataFrame, context: str = "fuente") -> None:
+    """Falla pronto si la fuente no contiene el contrato mínimo de entrada."""
+    missing = sorted(SOURCE_REQUIRED_COLUMNS.difference(frame.columns))
+    if missing:
+        raise ValueError(
+            f"Faltan columnas obligatorias en {context}: " + ", ".join(missing)
+        )
 
 
 def stable_observation_id(row: pd.Series) -> str:
@@ -243,6 +302,7 @@ def load_bronze(input_dir: Path) -> pd.DataFrame:
         frame.columns = [normalize_column(column) for column in frame.columns]
         frame["origen_dataset"] = origin
         frame["_source_row_number"] = np.arange(len(frame), dtype=int)
+        validate_source_columns(frame, context=filename)
         frames.append(frame)
     if missing:
         raise FileNotFoundError(
@@ -256,6 +316,7 @@ def build_silver(
 ) -> tuple[pd.DataFrame, dict[str, object]]:
     extraction_date = valid_iso_date(extraction_date)
     frame = bronze.copy()
+    validate_source_columns(frame, context="dataset Bronze combinado")
     initial_rows = len(frame)
 
     # La URL y la referencia solo se usan para deduplicar e identificar en
@@ -286,14 +347,24 @@ def build_silver(
     frame["codigo_postal"] = frame["codigo_postal"].round().astype("Int64")
     frame["latitud_aprox"] = frame["latitud_aprox"].round(3)
     frame["longitud_aprox"] = frame["longitud_aprox"].round(3)
-    frame["planta_num"] = frame.get("planta", pd.Series(index=frame.index)).map(normalize_floor)
-    frame["fecha_publicacion"] = pd.to_datetime(
-        frame.get("fecha_de_creacion"), errors="coerce"
-    ).dt.date.astype("string")
+    source_floor = frame.get(
+        "planta", pd.Series(pd.NA, index=frame.index, dtype="string")
+    )
+    frame["planta_num"] = source_floor.map(normalize_floor)
+    frame["es_atico"] = source_floor.map(normalize_attic).astype("Int64")
+    publication_timestamp = pd.to_datetime(
+        frame.get("fecha_de_creacion"), format="mixed", errors="coerce"
+    )
+    frame["fecha_publicacion"] = publication_timestamp.dt.strftime("%Y-%m-%d").astype(
+        "string"
+    )
     frame["fecha_extraccion"] = extraction_date
 
+    unknown_boolean_counts: dict[str, int] = {}
     for column in BOOLEAN_COLUMNS:
-        frame[column] = frame.get(column, pd.Series(index=frame.index)).map(normalize_boolean).astype("Int64")
+        source = frame.get(column, pd.Series(pd.NA, index=frame.index))
+        unknown_boolean_counts[column] = int(source.map(is_unknown_boolean).sum())
+        frame[column] = source.map(normalize_boolean).astype("Int64")
 
     for column in [
         "operacion",
@@ -305,9 +376,29 @@ def build_silver(
         "conservacion",
         "demanda",
     ]:
-        frame[column] = frame.get(column, pd.Series(index=frame.index, dtype="string")).astype("string").str.strip()
+        frame[column] = (
+            frame.get(column, pd.Series(index=frame.index, dtype="string"))
+            .astype("string")
+            .str.strip()
+            .mask(lambda values: values.eq(""))
+        )
+
+    extraction_timestamp = pd.Timestamp(extraction_date)
 
     rules = {
+        "fecha_publicacion_valida": publication_timestamp.notna(),
+        "fecha_no_posterior_extraccion": (
+            publication_timestamp.notna()
+            & publication_timestamp.le(extraction_timestamp)
+        ),
+        "tipologia_obligatoria": frame["tipologia"].notna(),
+        "municipio_obligatorio": frame["municipio"].notna(),
+        "provincia_obligatoria": frame["provincia"].notna(),
+        "origen_dataset_obligatorio": frame["origen_dataset"].notna(),
+        "coordenadas_validas": (
+            frame["latitud_aprox"].between(-90, 90)
+            & frame["longitud_aprox"].between(-180, 180)
+        ),
         "operacion_venta": frame["operacion"].str.casefold().eq("venta"),
         "precio_superior_10000": frame["precio_objetivo_eur"].gt(10_000),
         "superficie_entre_15_y_1000": frame["superficie_m2"].between(15, 1_000),
@@ -342,6 +433,8 @@ def build_silver(
         "filas_tras_deduplicacion": after_deduplication,
         "duplicados_eliminados": initial_rows - after_deduplication,
         "filas_sin_referencia_ni_url": rows_without_identity,
+        "valores_binarios_desconocidos_por_columna": unknown_boolean_counts,
+        "aticos_detectados": int(frame["es_atico"].eq(1).sum()),
         "fallos_independientes_por_regla": independent_failures,
         "descartes_secuenciales_por_regla": sequential_rejections,
         "filas_tras_filtros_calidad": after_quality_filters,
@@ -353,10 +446,80 @@ def build_silver(
 
 def build_gold(silver: pd.DataFrame) -> pd.DataFrame:
     gold = silver.reindex(columns=OUTPUT_COLUMNS).copy()
-    return gold.sort_values(
+    gold = gold.sort_values(
         ["origen_dataset", "fecha_publicacion", "id_observacion"],
         na_position="last",
     ).reset_index(drop=True)
+    validate_gold_contract(gold)
+    return gold
+
+
+def gold_contract_violations(gold: pd.DataFrame) -> dict[str, int]:
+    """Devuelve recuentos de incumplimientos sin exponer observaciones."""
+    missing_columns = len(set(OUTPUT_COLUMNS).difference(gold.columns))
+    if missing_columns:
+        return {"columnas_ausentes": missing_columns}
+
+    publication = pd.to_datetime(gold["fecha_publicacion"], errors="coerce")
+    extraction = pd.to_datetime(gold["fecha_extraccion"], errors="coerce")
+    violations: dict[str, int] = {
+        "columnas_ausentes": 0,
+        "nulos_en_campos_obligatorios": int(
+            gold[list(GOLD_REQUIRED_NON_NULL)].isna().any(axis=1).sum()
+        ),
+        "fechas_publicacion_invalidas": int(publication.isna().sum()),
+        "fechas_extraccion_invalidas": int(extraction.isna().sum()),
+        "publicaciones_posteriores_extraccion": int(
+            (publication.notna() & extraction.notna() & publication.gt(extraction)).sum()
+        ),
+        "coordenadas_fuera_de_rango": int(
+            (
+                ~gold["latitud_aprox"].between(-90, 90)
+                | ~gold["longitud_aprox"].between(-180, 180)
+            ).sum()
+        ),
+        "operaciones_distintas_de_venta": int(
+            (
+                ~gold["operacion"]
+                .astype("string")
+                .str.casefold()
+                .eq("venta")
+                .fillna(False)
+            ).sum()
+        ),
+        "precios_no_positivos": int(
+            (~gold["precio_objetivo_eur"].gt(0)).fillna(True).sum()
+        ),
+        "superficies_fuera_de_rango": int(
+            (~gold["superficie_m2"].between(15, 1_000)).fillna(True).sum()
+        ),
+        "aticos_codificados_como_99": int(gold["planta_num"].eq(99).sum()),
+    }
+    for column in ["es_atico", *BOOLEAN_COLUMNS]:
+        violations[f"{column}_fuera_de_0_1"] = int(
+            (~gold[column].isin([0, 1]) & gold[column].notna()).sum()
+        )
+    return violations
+
+
+def validate_gold_contract(gold: pd.DataFrame) -> dict[str, object]:
+    """Impide exportar un Gold que incumpla el contrato declarado."""
+    violations = gold_contract_violations(gold)
+    failed = {name: count for name, count in violations.items() if count}
+    if failed:
+        raise ValueError(
+            "El Gold incumple el contrato: "
+            + json.dumps(failed, ensure_ascii=False, sort_keys=True)
+        )
+    return {
+        "estado": "correcto",
+        "filas_validadas": len(gold),
+        "columnas_validadas": len(gold.columns),
+        "incumplimientos": violations,
+        "politica_binarios_desconocidos": (
+            "Se conservan como nulos y se imputan dentro del entrenamiento"
+        ),
+    }
 
 
 def reference_date_diagnostic(gold: pd.DataFrame) -> dict[str, object]:
@@ -428,6 +591,7 @@ def main() -> int:
         {
             "filas_gold_exportadas": len(gold),
             "columnas_gold": len(gold.columns),
+            "validacion_contrato_gold": validate_gold_contract(gold),
             "diagnostico_fecha_referencia": reference_date_diagnostic(gold),
             "nulos_por_columna": {
                 column: int(gold[column].isna().sum()) for column in gold.columns
@@ -451,6 +615,10 @@ def main() -> int:
                 "media_precio_municipio",
                 "score_zona_precio",
             ],
+            "politica_planta": (
+                "La altura numérica y la condición de ático se almacenan por separado; "
+                "un ático sin altura declarada conserva planta_num nula"
+            ),
         }
     )
     report_path.write_text(
