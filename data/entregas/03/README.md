@@ -31,8 +31,12 @@ La validación externa se ejecuta con
 `notebooks/03b_validacion_externa_y_challenger.ipynb`. Utiliza la captura del
 16 de noviembre de 2026, excluye coincidencias exactas entre capturas, compara
 el champion con un baseline de zona y superficie y presenta resultados por
-ciudad y tramo de precio. El modelo combinado se guarda como challenger y no
-se promociona hasta disponer de otra captura futura.
+ciudad y tramo de precio. También comprueba la sensibilidad de la comparación
+a los valores atípicos de precio y precio por metro cuadrado. Las tablas
+`sensibilidad_outliers_ciudades_nuevas.csv` y
+`sensibilidad_outliers_por_ciudad.csv` se generan en `local_output/`, fuera de
+Git. El modelo combinado se guarda como challenger y no se promociona hasta
+disponer de otra captura futura.
 
 `dias_publicado` se excluye porque solo existe después de publicar. `demanda`
 también queda fuera de esta versión, pero por una razón diferente: antes de

@@ -29,7 +29,7 @@ La Entrega 02 define las fuentes, la minimización de datos personales y el fluj
 - `../../requirements-entrega-03.txt`
 - `../../tests/test_train_vissotia_valuation.py`
 
-La Entrega 03 compara modelos sin fuga del objetivo, utiliza validación temporal y presenta errores por ciudad y tramo de precio. La validación externa incorpora una captura posterior, controla coincidencias exactas entre capturas, compara XGBoost con una referencia por zona y superficie y mantiene el nuevo modelo como challenger pendiente de otra prueba futura.
+La Entrega 03 compara modelos sin fuga del objetivo, utiliza validación temporal y presenta errores por ciudad y tramo de precio. La validación externa incorpora una captura posterior, controla coincidencias exactas entre capturas, compara XGBoost con una referencia por zona y superficie, analiza la sensibilidad a valores atípicos y mantiene el nuevo modelo como challenger pendiente de otra prueba futura.
 
 ## Convención para próximas entregas
 

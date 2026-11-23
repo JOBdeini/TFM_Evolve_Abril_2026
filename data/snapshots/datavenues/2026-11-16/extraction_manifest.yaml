@@ -13,6 +13,7 @@ operation_observed: Venta
 purpose:
   - external_temporal_validation
   - republication_control
+  - outlier_sensitivity_analysis
   - future_candidate_retraining
 data_classification: restricted_source_data
 redistribution: prohibited_pending_explicit_authorization
@@ -45,6 +46,11 @@ processing:
     statistic: median_price_per_square_meter
     minimum_witnesses: 10
     fallback_hierarchy: [barrio, codigo_postal, distrito, municipio, global]
+  outlier_sensitivity:
+    population: new_cities
+    grouping: city
+    rules: [price_per_square_meter_iqr_1_5, total_price_iqr_1_5]
+    modifies_gold: false
   geographic_exclusion:
     source_file: "bronze/bilbao/datavenues_bilbao_2026-11-16.csv"
     field: Municipio

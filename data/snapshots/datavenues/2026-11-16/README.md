@@ -43,6 +43,8 @@ La captura es homogénea en esquema, pero no en portal. Como Bilbao e Idealista 
 
 El notebook reproducible genera el Gold de noviembre, excluye republicaciones confirmadas del test externo, compara el champion con un baseline de zona y superficie y entrena un challenger sin promoverlo automáticamente. El baseline exige al menos 10 testigos en cada nivel y amplía progresivamente la referencia desde barrio a código postal, distrito, municipio y mediana global. Sus salidas se guardan en `local_output/`, protegido frente a Git.
 
+Como comprobación adicional, el notebook repite la comparación en las ciudades nuevas excluyendo, por municipio, valores atípicos definidos mediante la regla de 1,5 veces el rango intercuartílico sobre precio por metro cuadrado y precio total. Es un análisis de sensibilidad que no altera el Gold. Las salidas `sensibilidad_outliers_ciudades_nuevas.csv` y `sensibilidad_outliers_por_ciudad.csv` permanecen también en `local_output/`.
+
 ## Protección y versionado
 
 El `.gitignore` de esta carpeta excluye `bronze/`, las capas derivadas y los formatos de datos y modelos. Por tanto, Git solo debe versionar la documentación y el código reproducible, nunca los anuncios ni los datos de contacto.

@@ -180,6 +180,20 @@ El desglose por precio confirma que XGBoost aporta más en el tramo hasta 150.00
 | 300.000 a 600.000 € | 3.460 | 122.007 € | **107.768 €** |
 | Más de 600.000 € | 1.332 | 286.066 € | **260.498 €** |
 
+### Sensibilidad a valores atípicos
+
+Para comprobar si la ventaja del baseline en las ciudades nuevas se explica únicamente por anuncios extremos, se repite la comparación aplicando por ciudad la regla de 1,5 veces el rango intercuartílico. Se ensayan por separado el precio por metro cuadrado observado y el precio total. Estos filtros se utilizan solo como análisis de sensibilidad sobre el test: no modifican el Gold ni se calculan a partir del error de los modelos.
+
+| Filtro en ciudades nuevas | Observaciones | Excluidas | MAE XGBoost | MAE baseline |
+| --- | ---: | ---: | ---: | ---: |
+| Sin filtro | 5.476 | 0 | 144.334 € | **121.932 €** |
+| Sin atípicos de precio/m² por ciudad | 5.321 | 155 | 135.175 € | **111.727 €** |
+| Sin atípicos de precio total por ciudad | 5.170 | 306 | 120.110 € | **104.648 €** |
+
+La exclusión reduce el error de ambos métodos, pero no invierte la comparación agregada. Sin los atípicos de precio por metro cuadrado, el baseline continúa obteniendo menor MAE en A Coruña, Granada y Valencia, mientras que XGBoost mantiene la ventaja en Bilbao y Cuenca. Por tanto, los valores extremos influyen, pero no son la causa principal del resultado.
+
+Además, las 5.476 viviendas de ciudades nuevas recurren al nivel global del baseline, con una referencia de 2.708 €/m², porque la captura de abril no contiene testigos de esos territorios. Su robustez procede de escalar la superficie por una mediana global, no de conocer sus zonas. Los sesgos observados por ciudad apuntan principalmente a un cambio de distribución y a la extrapolación geográfica del champion.
+
 Después de cerrar esta evaluación se entrena un challenger con abril y noviembre. Cuando un identificador coincide se conserva la observación más reciente, de modo que el conjunto combinado contiene 16.743 viviendas. El challenger no se promociona: al haber aprendido de noviembre necesita una captura futura no utilizada en entrenamiento antes de sustituir al champion.
 
 ### Limitaciones
@@ -240,6 +254,6 @@ python scripts/train_vissotia_valuation.py \
 
 Las dependencias están declaradas en `requirements-entrega-03.txt`. El script genera las métricas, predicciones, residuos de calibración, análisis por segmentos, prueba de ciudad excluida, importancia de variables, gráficos y el artefacto local del modelo. Las salidas permanecen fuera de Git porque derivan de una fuente cuya redistribución debe validarse.
 
-La validación con la captura posterior y el entrenamiento del challenger se reproducen ejecutando `notebooks/03b_validacion_externa_y_challenger.ipynb`. El notebook genera el Gold de noviembre, excluye coincidencias exactas entre capturas, calcula el baseline de zona y superficie, presenta métricas por ciudad y tramo de precio y guarda el challenger en la salida local protegida.
+La validación con la captura posterior y el entrenamiento del challenger se reproducen ejecutando `notebooks/03b_validacion_externa_y_challenger.ipynb`. El notebook genera el Gold de noviembre, excluye coincidencias exactas entre capturas, calcula el baseline de zona y superficie, presenta métricas por ciudad y tramo de precio, comprueba la sensibilidad a valores atípicos y guarda el challenger en la salida local protegida.
 
 El código y esta memoria distinguen el resultado reproducible del experimento de la futura implementación en VISSOTIA. No se ha modificado el repositorio ni el valorador de producción de VISSOTIA.

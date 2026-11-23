@@ -14,7 +14,7 @@ La futura copia académica de la aplicación se incorporará de forma controlada
 | --- | --- | --- | --- |
 | 01 | Ideas de producto | Completada | `docs/entregas/01_ideas_producto.md` |
 | 02 | Datos y preparación | Completada | `docs/entregas/02_datos_y_preparacion.md` y versión Word |
-| 03 | Machine Learning | En revisión final | `docs/entregas/03_machine_learning.md` y versión Word |
+| 03 | Machine Learning | Actualizada con validación externa y sensibilidad a valores atípicos | `docs/entregas/03_machine_learning.md` y versión Word |
 | 04 | Diseño frontal y UX | Pendiente | Se preparará después de cerrar las correcciones de datos y modelo |
 
 El índice detallado se encuentra en `docs/entregas/README.md`.
