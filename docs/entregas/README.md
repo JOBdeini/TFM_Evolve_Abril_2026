@@ -31,6 +31,17 @@ La Entrega 02 define las fuentes, la minimización de datos personales y el fluj
 
 La Entrega 03 compara modelos sin fuga del objetivo, utiliza validación temporal y presenta errores por ciudad y tramo de precio. La validación externa incorpora una captura posterior, controla coincidencias exactas entre capturas, compara XGBoost con una referencia por zona y superficie, analiza la sensibilidad a valores atípicos y mantiene el nuevo modelo como challenger pendiente de otra prueba futura.
 
+## Entrega 04 Diseño frontal y experiencia de usuario
+
+- `04_diseno_frontal_ux.md`
+- `04_diseno_frontal_ux.docx`
+- `assets/04_mockup_valoracion_vissotia.png`
+- `assets/04_mockup_valoracion_vissotia.html`
+- `assets/04_vissotia_logo.png`
+
+La Entrega 04 diseña el flujo principal de un valorador de vivienda autónomo. Permite realizar consultas anónimas o identificadas voluntariamente, recoge la ubicación y las características del inmueble y presenta la estimación central, el intervalo de incertidumbre, la cobertura y la calidad de los datos. El mockup diferencia los resultados del modelo de los escenarios comerciales posteriores y documenta la conexión prevista con Google Places, la API de predicción y la futura persistencia de clientes, inmuebles y valoraciones.
+
+
 ## Convención para próximas entregas
 
 Las memorias se nombrarán con un prefijo numérico de dos dígitos, seguido de un nombre descriptivo. El código y los datos auxiliares se incorporarán en `scripts` y `data/entregas`, manteniendo la misma numeración de entrega.

@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Mockup del valorador de VISSOTIA</title>
+  <style>
+    :root {
+      --green-950: #0a231e;
+      --green-900: #102f29;
+      --green-800: #174f42;
+      --green-700: #236b5b;
+      --mint-100: #dff6ed;
+      --mint-200: #b9e7d5;
+      --gold-400: #f0c779;
+      --gold-500: #f0b64b;
+      --cream-50: #f8f5ef;
+      --surface: #fffdf8;
+      --text: #132a25;
+      --muted: #60706b;
+      --border: #d9e4df;
+      --success: #027a48;
+      --warning: #b54708;
+      --error: #b42318;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #e9e2d4;
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .page {
+      width: 1680px;
+      margin: 0 auto;
+      padding: 44px;
+    }
+
+    .page-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .page-title h1 {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 700;
+    }
+
+    .page-title p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .fictional {
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: var(--mint-100);
+      color: var(--green-800);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .screen {
+      overflow: hidden;
+      margin-bottom: 34px;
+      border: 1px solid rgba(16, 47, 41, 0.14);
+      border-radius: 24px;
+      background: var(--surface);
+      box-shadow: 0 18px 45px rgba(16, 47, 41, 0.12);
+    }
+
+    .app-header {
+      min-height: 112px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 34px;
+      background: linear-gradient(135deg, var(--green-950), var(--green-800));
+      color: var(--white);
+    }
+
+    .logo-crop {
+      width: 300px;
+      height: 76px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .logo-crop img {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      left: 0;
+      top: -107px;
+      object-fit: contain;
+    }
+
+    .app-header-meta {
+      text-align: right;
+    }
+
+    .app-header-meta strong {
+      display: block;
+      font-size: 20px;
+    }
+
+    .app-header-meta span {
+      display: block;
+      margin-top: 5px;
+      color: rgba(255,255,255,0.72);
+      font-size: 14px;
+    }
+
+    .screen-body {
+      padding: 32px 38px 38px;
+    }
+
+    .step-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .step-label {
+      color: var(--green-700);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .step-row h2 {
+      margin: 6px 0 0;
+      font-size: 29px;
+    }
+
+    .step-row p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .progress {
+      display: flex;
+      gap: 8px;
+    }
+
+    .progress span {
+      width: 50px;
+      height: 8px;
+      border-radius: 999px;
+      background: #dce5e1;
+    }
+
+    .progress span.active,
+    .progress span.done {
+      background: var(--gold-500);
+    }
+
+    .choice-grid,
+    .two-columns,
+    .three-columns,
+    .result-grid {
+      display: grid;
+      gap: 22px;
+    }
+
+    .choice-grid,
+    .two-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .three-columns {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .result-grid {
+      grid-template-columns: 1.35fr .65fr;
+    }
+
+    .card {
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--white);
+    }
+
+    .card.selected {
+      border: 2px solid var(--green-700);
+      background: linear-gradient(180deg, #ffffff, #f3fbf7);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 21px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .choice-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      border-radius: 14px;
+      background: var(--mint-100);
+      color: var(--green-800);
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .selected-mark {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--mint-100);
+      color: var(--success);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .privacy-note,
+    .warning-box,
+    .info-box {
+      margin-top: 20px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .privacy-note,
+    .info-box {
+      background: #eef8f4;
+      color: var(--green-800);
+    }
+
+    .warning-box {
+      background: #fffaeb;
+      color: #7a4b00;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .button {
+      padding: 13px 20px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--white);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    .button.primary {
+      border-color: var(--green-800);
+      background: var(--green-800);
+      color: var(--white);
+    }
+
+    .button.gold {
+      border-color: var(--gold-500);
+      background: var(--gold-500);
+      color: var(--green-950);
+    }
+
+    .section-title {
+      margin: 0 0 15px;
+      font-size: 18px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      min-height: 68px;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fbfdfc;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .field strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .field small {
+      display: block;
+      margin-top: 4px;
+      color: var(--green-700);
+      font-size: 12px;
+    }
+
+    .tri-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tri-row {
+      display: grid;
+      grid-template-columns: 1fr 185px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tri-row > span {
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .tri-control {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .tri-control span {
+      padding: 8px 5px;
+      border-right: 1px solid var(--border);
+      background: #fafcfb;
+      color: var(--muted);
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .tri-control span:last-child {
+      border-right: 0;
+    }
+
+    .tri-control span.on {
+      background: var(--mint-100);
+      color: var(--green-800);
+      font-weight: 800;
+    }
+
+    .quality {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 18px;
+      padding: 15px 17px;
+      border-radius: 14px;
+      background: var(--cream-50);
+    }
+
+    .quality strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .quality span {
+      color: var(--success);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .main-result {
+      padding: 28px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--green-950), var(--green-800));
+      color: var(--white);
+    }
+
+    .main-result .eyebrow {
+      color: var(--gold-400);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .main-price {
+      margin: 12px 0 4px;
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+
+    .main-result p {
+      margin: 0;
+      color: rgba(255,255,255,.72);
+      font-size: 15px;
+    }
+
+    .interval {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,.18);
+    }
+
+    .interval-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 9px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .interval-track {
+      position: relative;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.18);
+    }
+
+    .interval-range {
+      position: absolute;
+      left: 16%;
+      right: 12%;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--gold-400);
+    }
+
+    .interval-point {
+      position: absolute;
+      left: 53%;
+      top: -5px;
+      width: 22px;
+      height: 22px;
+      border: 4px solid var(--white);
+      border-radius: 50%;
+      background: var(--green-700);
+    }
+
+    .status-list {
+      display: grid;
+      gap: 13px;
+    }
+
+    .status-item {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--white);
+    }
+
+    .status-item label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      text-transform: uppercase;
+    }
+
+    .status-item strong {
+      font-size: 16px;
+    }
+
+    .success {
+      color: var(--success);
+    }
+
+    .scenario {
+      padding: 21px;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      background: var(--white);
+    }
+
+    .scenario.central {
+      border: 2px solid var(--gold-500);
+      background: #fffaf0;
+    }
+
+    .scenario label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .scenario strong {
+      display: block;
+      margin: 8px 0 5px;
+      font-size: 28px;
+    }
+
+    .scenario small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .comparison {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-radius: 15px;
+      background: var(--mint-100);
+    }
+
+    .comparison strong {
+      font-size: 18px;
+    }
+
+    .comparison span {
+      color: var(--green-800);
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .footer-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 22px;
+      padding: 17px 19px;
+      border-left: 5px solid var(--gold-500);
+      border-radius: 8px;
+      background: #fffaf0;
+      color: #694500;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .screen-number {
+      color: var(--gold-500);
+      font-size: 14px;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="page-title">
+      <div>
+        <h1>Valorador de vivienda · flujo principal</h1>
+        <p>Diseño conceptual del MVP de valoración inicial de VISSOTIA</p>
+      </div>
+      <div class="fictional">Datos ficticios · Entrega académica</div>
+    </div>
+
+    <section class="screen">
+      <header class="app-header">
+        <div class="logo-crop">
+          <img src="04_vissotia_logo.png" alt="VISSOTIA">
+        </div>
+        <div class="app-header-meta">
+          <strong>Valorador de vivienda</strong>
+          <span>Estimación orientativa de precio anunciado</span>
+        </div>
+      </header>
+
+      <div class="screen-body">
+        <div class="step-row">
+          <div>
+            <div class="step-label">Paso 1 de 3</div>
+            <h2>¿Cómo quieres realizar la valoración?</h2>
+            <p>Puedes continuar sin identificarte o asociar voluntariamente la consulta a un cliente.</p>
+          </div>
+          <div class="progress" aria-label="Progreso">
+            <span class="active"></span><span></span><span></span>
+          </div>
+        </div>
+
+        <div class="choice-grid">
+          <article class="card selected">
+            <div class="choice-icon">A</div>
+            <h3>Valoración anónima</h3>
+            <p>No solicitaremos nombre, teléfono ni correo electrónico. La consulta recibirá un identificador técnico.</p>
+            <span class="selected-mark">Opción seleccionada</span>
+          </article>
+
+          <article class="card">
+            <div class="choice-icon">C</div>
+            <h3>Asociar a un cliente</h3>
+            <p>Permite guardar nombre, teléfono y correo electrónico con consentimiento expreso para recuperar la valoración.</p>
+          </article>
+        </div>
+
+        <div class="privacy-note">
+          Los datos personales nunca se utilizan como variables del modelo. Puedes continuar anónimamente y descargar el resultado.
+        </div>
+
+        <div class="actions">
+          <div class="button">Volver</div>
+          <div class="button primary">Continuar de forma anónima</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen">
+      <header class="app-header">
+        <div class="logo-crop">
+          <img src="04_vissotia_logo.png" alt="VISSOTIA">
+        </div>
+        <div class="app-header-meta">
+          <strong>Valorador de vivienda</strong>
+          <span>Consulta anónima</span>
+        </div>
+      </header>
+
+      <div class="screen-body">
+        <div class="step-row">
+          <div>
+            <div class="step-label">Paso 2 de 3</div>
+            <h2>Datos del inmueble</h2>
+            <p>Completa la información disponible. Los campos marcados son necesarios para calcular.</p>
+          </div>
+          <div class="progress" aria-label="Progreso">
+            <span class="done"></span><span class="active"></span><span></span>
+          </div>
+        </div>
+
+        <div class="two-columns">
+          <div>
+            <article class="card">
+              <h3 class="section-title">Ubicación y características</h3>
+              <div class="field-grid">
+                <div class="field full">
+                  <label>Dirección *</label>
+                  <strong>Calle Ejemplo 24, 28001 Madrid</strong>
+                  <small>Dirección validada · Google Places previsto</small>
+                </div>
+                <div class="field"><label>Superficie *</label><strong>95 m²</strong></div>
+                <div class="field"><label>Tipología *</label><strong>Piso</strong></div>
+                <div class="field"><label>Dormitorios *</label><strong>3</strong></div>
+                <div class="field"><label>Baños *</label><strong>2</strong></div>
+                <div class="field"><label>Planta</label><strong>4</strong></div>
+                <div class="field"><label>Puerta</label><strong>B</strong></div>
+                <div class="field"><label>Ático</label><strong>No</strong></div>
+                <div class="field"><label>Conservación</label><strong>Buen estado</strong></div>
+                <div class="field full"><label>Precio propuesto, opcional</label><strong>310.000 €</strong></div>
+              </div>
+            </article>
+          </div>
+
+          <div>
+            <article class="card">
+              <h3 class="section-title">Equipamiento y servicios residenciales</h3>
+              <div class="tri-list">
+                <div class="tri-row"><span>Ascensor</span><div class="tri-control"><span class="on">Sí</span><span>No</span><span>Sin dato</span></div></div>
+                <div class="tri-row"><span>Garaje o cochera</span><div class="tri-control"><span>Sí</span><span class="on">No</span><span>Sin dato</span></div></div>
+                <div class="tri-row"><span>Trastero</span><div class="tri-control"><span class="on">Sí</span><span>No</span><span>Sin dato</span></div></div>
+                <div class="tri-row"><span>Terraza o balcón</span><div class="tri-control"><span class="on">Sí</span><span>No</span><span>Sin dato</span></div></div>
+                <div class="tri-row"><span>Aire acondicionado</span><div class="tri-control"><span class="on">Sí</span><span>No</span><span>Sin dato</span></div></div>
+                <div class="tri-row"><span>Piscina</span><div class="tri-control"><span>Sí</span><span class="on">No</span><span>Sin dato</span></div></div>
+                <div class="tri-row"><span>Zonas verdes</span><div class="tri-control"><span>Sí</span><span class="on">No</span><span>Sin dato</span></div></div>
+                <div class="tri-row"><span>Zona deportiva</span><div class="tri-control"><span>Sí</span><span>No</span><span class="on">Sin dato</span></div></div>
+              </div>
+
+              <div class="quality">
+                <strong>Calidad de los datos</strong>
+                <span>Alta · 92 % completado</span>
+              </div>
+            </article>
+
+            <div class="warning-box">
+              La puerta identifica la vivienda, pero no participa en el modelo. El precio propuesto se utiliza únicamente para comparar el resultado.
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <div class="button">Volver</div>
+          <div class="button gold">Calcular valoración</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen">
+      <header class="app-header">
+        <div class="logo-crop">
+          <img src="04_vissotia_logo.png" alt="VISSOTIA">
+        </div>
+        <div class="app-header-meta">
+          <strong>Resultado de la valoración</strong>
+          <span>Consulta VAL-2026-000184</span>
+        </div>
+      </header>
+
+      <div class="screen-body">
+        <div class="step-row">
+          <div>
+            <div class="step-label">Paso 3 de 3</div>
+            <h2>Estimación orientativa</h2>
+            <p>Interpreta conjuntamente el valor central, el intervalo y la cobertura de los datos.</p>
+          </div>
+          <div class="progress" aria-label="Progreso">
+            <span class="done"></span><span class="done"></span><span class="active"></span>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="main-result">
+            <div class="eyebrow">Referencia central del modelo</div>
+            <div class="main-price">300.000 €</div>
+            <p>Estimación del precio anunciado para los datos introducidos.</p>
+
+            <div class="interval">
+              <div class="interval-labels">
+                <span>Intervalo estimado</span>
+                <span>250.000 € — 355.000 €</span>
+              </div>
+              <div class="interval-track">
+                <div class="interval-range"></div>
+                <div class="interval-point"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-list">
+            <div class="status-item">
+              <label>Cobertura geográfica</label>
+              <strong class="success">Adecuada · Madrid</strong>
+            </div>
+            <div class="status-item">
+              <label>Calidad de los datos</label>
+              <strong class="success">Alta · 92 %</strong>
+            </div>
+            <div class="status-item">
+              <label>Revisión humana</label>
+              <strong>No requerida inicialmente</strong>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="margin:26px 0 14px;font-size:20px;">Escenarios comerciales</h3>
+
+        <div class="three-columns">
+          <article class="scenario">
+            <label>Publicación alta · +5 %</label>
+            <strong>315.000 €</strong>
+            <small>Regla comercial configurable</small>
+          </article>
+          <article class="scenario central">
+            <label>Referencia central</label>
+            <strong>300.000 €</strong>
+            <small>Resultado del modelo</small>
+          </article>
+          <article class="scenario">
+            <label>Comercialización rápida · -20 %</label>
+            <strong>240.000 €</strong>
+            <small>Regla comercial configurable</small>
+          </article>
+        </div>
+
+        <div class="comparison">
+          <strong>Precio propuesto: 310.000 €</strong>
+          <span>10.000 € por encima de la referencia central · +3,3 %</span>
+        </div>
+
+        <div class="footer-note">
+          <strong>Importante:</strong>
+          <span>Estimación orientativa de precio anunciado. No constituye una tasación homologada, un precio de cierre ni una garantía de venta. Los escenarios comerciales no son predicciones independientes del algoritmo.</span>
+        </div>
+
+        <div class="actions">
+          <div class="button">Modificar datos</div>
+          <div class="button">Solicitar revisión</div>
+          <div class="button primary">Descargar informe</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
